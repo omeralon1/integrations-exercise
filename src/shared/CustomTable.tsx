@@ -1,5 +1,5 @@
 // src/shared/CustomTable.tsx
-import {useEffect, useState} from 'react';
+import {ReactElement, useEffect, useState} from 'react';
 import {
     Box,
     CircularProgress,
@@ -14,19 +14,20 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 
-interface ColumnSchema {
+export interface ColumnSchema<T> {
     field: string;
     headerName: string;
     width?: string; // Optional width property
+    cellRenderer?: ({row}: { row: T }) => ReactElement;
 }
 
-interface CustomTableProps {
-    columns: ColumnSchema[];
+interface CustomTableProps<T> {
+    columns: ColumnSchema<T>[];
     dataUrl: string;
 }
 
-const CustomTable = <T, >({columns, dataUrl}: CustomTableProps) => {
-    const [data, setData] = useState<any[]>([]);
+const CustomTable = <T, >({columns, dataUrl}: CustomTableProps<T>) => {
+    const [data, setData] = useState<T[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
@@ -57,8 +58,8 @@ const CustomTable = <T, >({columns, dataUrl}: CustomTableProps) => {
                                     <TableCell
                                         key={column.field}
                                         style={column.width?.endsWith('fr')
-                                            ? { flex: column.width }
-                                            : { width: column.width }}>
+                                            ? {flex: column.width}
+                                            : {width: column.width}}>
                                         <Typography variant="h6">{column.headerName}</Typography>
                                     </TableCell>
                                 ))}
@@ -67,9 +68,13 @@ const CustomTable = <T, >({columns, dataUrl}: CustomTableProps) => {
                         <TableBody>
                             {data.map((row, index) => (
                                 <TableRow key={index}>
-                                    {columns.map((column) => (
-                                        <TableCell key={column.field}>{row[column.field]}</TableCell>
-                                    ))}
+                                    {columns.map((column) => {
+                                        console.log('row', row)
+                                            return (<TableCell key={column.field}>
+                                                {column.cellRenderer ? column.cellRenderer({row}) : row[column.field]}
+                                            </TableCell>)
+                                        }
+                                    )}
                                 </TableRow>
                             ))}
                         </TableBody>
