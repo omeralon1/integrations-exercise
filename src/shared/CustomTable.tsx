@@ -1,7 +1,6 @@
 import {useEffect, useState} from 'react';
 import {
     Box,
-    Button,
     CircularProgress,
     Paper,
     Table,
@@ -10,7 +9,6 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    TextField,
     Typography
 } from '@mui/material';
 import axios from 'axios';
@@ -24,24 +22,17 @@ export interface ColumnSchema<T> {
 interface CustomTableProps<T> {
     columns: ColumnSchema<T>[];
     dataUrl: string;
-    enableSearch?: boolean;
 }
 
-const CustomTable = <T, >({columns, dataUrl, enableSearch = false}: CustomTableProps<T>) => {
+const CustomTable = <T, >({columns, dataUrl}: CustomTableProps<T>) => {
     const [data, setData] = useState<T[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [searchTerm, setSearchTerm] = useState<string>('');
-    const [searchQuery, setSearchQuery] = useState<string>('');
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const response = await axios.get<T[]>(dataUrl, {
-                    params: {
-                        search: searchQuery || undefined
-                    }
-                });
+                const response = await axios.get<T[]>(dataUrl);
                 setData(response.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -51,27 +42,10 @@ const CustomTable = <T, >({columns, dataUrl, enableSearch = false}: CustomTableP
         };
 
         fetchData();
-    }, [dataUrl, searchQuery]);
-
-    const handleSearch = () => {
-        setSearchQuery(searchTerm);
-    };
+    }, [dataUrl]);
 
     return (
         <Box display="flex" flexDirection="column" alignItems="center" minHeight="100vh">
-            {enableSearch && (
-                <Box display="flex" mb={2}>
-                    <TextField
-                        label="Search"
-                        variant="outlined"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                    <Button variant="contained" color="primary" onClick={handleSearch}>
-                        Search
-                    </Button>
-                </Box>
-            )}
             {loading ? (
                 <CircularProgress/>
             ) : (
