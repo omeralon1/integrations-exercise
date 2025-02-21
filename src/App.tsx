@@ -6,8 +6,7 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<App/>}/>
-                <Route path="/integrations" element={<IntegrationsPage/>}/>
+                <Route path="/" element={<IntegrationsPage/>}/>
             </Routes>
         </BrowserRouter>
     )
